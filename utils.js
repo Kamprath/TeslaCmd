@@ -78,6 +78,8 @@ async function wakeVehicle(accessToken, vehicleId) {
 }
 
 async function getVehicle(accessToken) {
+  console.log('Looking up vehicle...');
+
   try {
     const response = await getRequest(`${API_BASE_URL}/vehicles`, accessToken);
     const vehicle = response.response[0];
@@ -90,6 +92,18 @@ async function getVehicle(accessToken) {
   }
 }
 
+async function getVehicleData(accessToken, vehicleId) {
+  console.log('Fetching vehicle data...');
+
+  try {
+    const vehicleDataResponse = await getRequest(`${API_BASE_URL}/vehicles/${vehicleId}/vehicle_data`, accessToken);
+    return vehicleDataResponse.response;
+  } catch (error) {
+    console.log(`Failed to fetch vehicle data: ${error}`);
+    return null;
+  }
+}
+
 module.exports = {
   getRandomString,
   getRequest,
@@ -98,5 +112,6 @@ module.exports = {
   postRequest,
   readLine,
   wakeVehicle,
-  getVehicle
+  getVehicle,
+  getVehicleData
 }

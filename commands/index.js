@@ -8,6 +8,7 @@ const unlockCommand = require('./unlock');
 const ventCommand = require('./vent');
 const closeWindows = require('./close');
 const fartCommand = require('./fart');
+const getLocation = require('./location');
 
 const commands = {
   'wake': {
@@ -73,7 +74,7 @@ const commands = {
   'location': {
     description: 'Get the current geo location',
     usage: 'location',
-    execute: () => false
+    execute: getLocation
   },
 
   'temp': {
