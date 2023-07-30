@@ -15,7 +15,7 @@ const drive = require('./drive');
 
 const commands = {
   'wake': {
-    description: 'Wakes up the car',
+    description: 'Attemts to wake up the car. Times out after 30 seconds.',
     usage: 'wake',
     execute: wake
   },

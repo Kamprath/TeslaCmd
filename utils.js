@@ -104,6 +104,10 @@ async function getVehicleData(accessToken, vehicleId) {
   }
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 module.exports = {
   getRandomString,
   getRequest,
@@ -113,5 +117,6 @@ module.exports = {
   readLine,
   wakeVehicle,
   getVehicle,
-  getVehicleData
+  getVehicleData,
+  sleep
 }
