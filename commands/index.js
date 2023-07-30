@@ -134,7 +134,19 @@ async function evaluateCommand(commandString, accessToken, vehicleId) {
   }
 }
 
-async function displayHelp() {
+async function displayHelp(accessToken, vehicleId, params) {
+  if (params.length > 0) {
+    const command = params[0];
+
+    if (commands[command]) {
+      console.log(`\n Usage: ${commands[command].usage}\n Description: ${commands[command].description}\n`);
+    } else {
+      console.log(`Unknown command "${command}". Type "help" for a list of commands.`);
+    }
+
+    return false;
+  }
+
   console.log('Available commands:\n');
   
   for (const command in commands) {
