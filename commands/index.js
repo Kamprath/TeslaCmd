@@ -11,6 +11,7 @@ const fartCommand = require('./fart');
 const getLocation = require('./location');
 const navigate = require('./nav');
 const playVideo = require('./video');
+const drive = require('./drive');
 
 const commands = {
   'wake': {
@@ -53,6 +54,12 @@ const commands = {
     description: 'Unlock the car',
     usage: 'unlock',
     execute: unlockCommand
+  },
+
+  'drive': {
+    description: 'Enables keyless driving for two minutes.',
+    usage: 'drive',
+    execute: drive
   },
   
   'vent': {
