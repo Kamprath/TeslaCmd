@@ -9,6 +9,8 @@ const ventCommand = require('./vent');
 const closeWindows = require('./close');
 const fartCommand = require('./fart');
 const getLocation = require('./location');
+const navigate = require('./nav');
+const playVideo = require('./video');
 
 const commands = {
   'wake': {
@@ -66,9 +68,9 @@ const commands = {
   },
 
   'nav': {
-    description: 'Navigate to an address',
-    usage: 'nav <address>',
-    execute: () => false
+    description: 'Navigate to an address or Google Maps link',
+    usage: 'nav <address|link>',
+    execute: navigate
   },
 
   'location': {
@@ -86,7 +88,7 @@ const commands = {
   'video': {
     description: 'Play a video on the screen',
     usage: 'video <url>',
-    execute: () => false
+    execute: playVideo
   },
 
   'volume': {
