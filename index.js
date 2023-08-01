@@ -1,10 +1,9 @@
-const { readLine, getRandomString, getVehicle } = require('./utils');
+const { readLine, getVehicle } = require('./utils');
 const { authenticate } = require('./auth');
 const { evaluateCommand } = require('./commands');
 const wakeVehicle = require('./commands/wake');
 
 (async function(){
-
   let exit = false;
 
   const token = await authenticate();    
@@ -24,7 +23,6 @@ const wakeVehicle = require('./commands/wake');
   const vehicleId = vehicle.id_s;
   const vehicleName = vehicle.display_name;
 
-  // wake vehicle
   await wakeVehicle(token, vehicleId);
 
   console.log('\nEnter "help" for a list of commands.\n');

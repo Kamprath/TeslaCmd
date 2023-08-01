@@ -55,11 +55,11 @@ function sha256(message) {
   return crypto.createHash('sha256').update(message).digest('hex');
 }
 
-async function storeTokenDataToFile(accessToken, refreshToken, expiresInHours) {
+async function storeTokenDataToFile(accessToken, refreshToken, minutesToExpiration) {
   const tokenData = {
     accessToken,
     refreshToken,
-    expiresAt: Date.now() + (expiresInHours * 60 * 60 * 1000)
+    expiresAt: Date.now() + (minutesToExpiration * 60 * 1000)
   };
 
   await fs.writeFile('./token.json', JSON.stringify(tokenData), (err) => {
