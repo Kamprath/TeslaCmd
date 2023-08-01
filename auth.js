@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { postRequest, readLine, getURLParameterValue, getRandomString, base64URLEncode } = require('./utils');
+const fs = require('fs');
 
 async function getAccessToken(code, codeVerifier) {
   console.log('Fetching access token...');
@@ -11,9 +12,25 @@ async function getAccessToken(code, codeVerifier) {
       "code_verifier": codeVerifier,
       "redirect_uri": "https://auth.tesla.com/void/callback"
     });
-    return response.access_token;
+    return response;
   } catch (error) {
     return '';
+  }
+}
+
+async function sendRefreshTokenRequest(refreshToken) {
+  console.log('Refreshing access token...');
+  try {
+    const response = await postRequest('https://auth.tesla.com/oauth2/v3/token', {
+      "grant_type": "refresh_token",
+      "client_id": "ownerapi",
+      "refresh_token": refreshToken,
+      "scope": "openid email offline_access phone"
+    });
+
+    return response;
+  } catch (error) {
+    return null;
   }
 }
 
@@ -38,9 +55,74 @@ function sha256(message) {
   return crypto.createHash('sha256').update(message).digest('hex');
 }
 
+async function storeTokenDataToFile(accessToken, refreshToken, expiresInHours) {
+  const tokenData = {
+    accessToken,
+    refreshToken,
+    expiresAt: Date.now() + (expiresInHours * 60 * 60 * 1000)
+  };
+
+  await fs.writeFile('./token.json', JSON.stringify(tokenData), (err) => {
+    if (err) {
+      console.log('Failed to write token data to file: ', err);
+      }
+    }
+  );
+}
+
+async function getTokenDataFromFile() {
+  if (fs.existsSync('./token.json')) {
+    // read text from token.json file
+    const tokenData = await fs.readFileSync('./token.json', 'utf8');
+    return JSON.parse(tokenData);
+  }
+
+  return null;
+}
+
+async function authenticate() {  
+  let token = '';
+  const codeChallenge = generateCodeChallenge(86);
+  const state = getRandomString(16);
+  
+  const tokenData = await getTokenDataFromFile();
+  
+  if (tokenData != null) {
+    if (tokenData.expiresAt <= Date.now()) {
+      // if expired, send refresh token request
+      const refreshTokenResponse = await sendRefreshTokenRequest(tokenData.refreshToken);
+
+      if (refreshTokenResponse != null) {
+        token = refreshTokenResponse.access_token;
+  
+        // store token data
+        await storeTokenDataToFile(refreshTokenResponse.access_token, refreshTokenResponse.refresh_token, refreshTokenResponse.expires_in);
+      }
+    } else {
+      token = tokenData.accessToken;
+    }
+  } else {
+    // if doesn't exist, prompt user for auth URL
+    const code = await promptUserForAuthCode(codeChallenge.codeChallenge, state);
+    const tokenResponse = await getAccessToken(code, codeChallenge.codeVerifier);
+
+    if (tokenResponse != null && tokenResponse.access_token != null) {
+      token = tokenResponse.access_token;
+  
+      await storeTokenDataToFile(tokenResponse.access_token, tokenResponse.refresh_token, tokenResponse.expires_in / 60 / 60);
+    }
+  }
+
+  return token;
+}
+
 module.exports = {
   getAccessToken,
   promptUserForAuthCode,
   generateCodeChallenge,
-  sha256
+  storeTokenDataToFile,
+  sendRefreshTokenRequest,
+  getTokenDataFromFile,
+  sha256,
+  authenticate
 };
